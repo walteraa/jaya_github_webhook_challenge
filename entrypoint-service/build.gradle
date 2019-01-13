@@ -63,6 +63,20 @@ dependencies {
     // Broker
     compile "com.rabbitmq:amqp-client:latest.release"
 
+    // Test
+    testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
+    // JSON serialization
+    compile "com.fasterxml.jackson.core:jackson-databind:$serializer_version"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$serializer_version"
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.beust:klaxon:5.0.1'
+    compile "khttp:khttp:0.1.0"
+
+    // fake data generator
+    compile "com.github.javafaker:javafaker:$faker_version"
+
 
 }
 

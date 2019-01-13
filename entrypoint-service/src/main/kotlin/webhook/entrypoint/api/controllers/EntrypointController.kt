@@ -32,12 +32,16 @@ class EntrypointController(){
              * Endpoint which will receives events from Github
              */
             ApiBuilder.post("/") { ctx ->
+
+                logger.info("Environment.getGithubSecret() -> ${Environment.getGithubSecret()}")
                 // Security feature provided by github hooks
-                if (Environment.getGithubSecret() != null) {
+                if (!Environment.getGithubSecret().isNullOrBlank()) {
                     val githubSignature = ctx.header(Consts.GITHUB_SIGNTURE)
+                    logger.info("githubSignature --> $githubSignature")
                     logger.info("Checking credentials...")
                     if (!sha1(Environment.getGithubSecret()).equals(githubSignature)) {
                         ctx.status(HttpStatusCode.UNAUTHORIZED)
+                        return@post
                     }
                     logger.info("Credentials approved!")
                 }
