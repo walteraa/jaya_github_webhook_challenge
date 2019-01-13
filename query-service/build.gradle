@@ -1,0 +1,99 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    ext {
+        kotlin_version = '1.3.10'
+        faker_version = '0.15'
+        loggin_version = '1.7.25'
+        serializer_version = '2.9.6'
+        ktor_version = '1.1.1'
+        flyway_version = '5.1.4'
+        typesafe_version = '1.3.2'
+
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.10'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "2.0.4"
+}
+
+group 'webhook'
+version '1.0'
+sourceCompatibility = 1.8
+
+// $ gradle classes
+
+
+sourceSets {
+    main.kotlin.srcDirs = [ 'src/main/kotlin' ]
+    main.resources.srcDirs = [ 'src/main/resources' ]
+    test.kotlin.srcDirs = [ 'src/test/kotlin' ]
+}
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://dl.bintray.com/kotlin/exposed" }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    // fake data generator
+    compile "com.github.javafaker:javafaker:$faker_version"
+
+    // logging
+    compile "org.slf4j:slf4j-api:$loggin_version"
+    compile "org.slf4j:slf4j-log4j12:$loggin_version"
+    compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
+
+    // JSON serialization
+    compile "com.fasterxml.jackson.core:jackson-databind:$serializer_version"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$serializer_version"
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+
+
+    // Configuration manager
+    compile "com.natpryce:konfig:1.6.10.0"
+
+
+
+    // Database
+    compile 'org.jetbrains.exposed:exposed:0.10.5'
+    compile "org.flywaydb:flyway-core:$flyway_version"
+    runtime 'org.postgresql:postgresql:42.2.5'
+    compile 'com.zaxxer:HikariCP:3.2.0'
+
+    // Date and Time
+    compile "com.github.debop:koda-time:1.2.1"
+
+    // HTTP framework
+    compile 'io.javalin:javalin:2.5.0'
+
+    // Test
+    testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    compile "khttp:khttp:0.1.0"
+
+}
+
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+archivesBaseName = 'webhook-query'
+mainClassName = 'webhook.query.api.Main'
