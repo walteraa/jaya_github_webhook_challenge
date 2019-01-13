@@ -1,7 +1,6 @@
 package tests
 
 import com.github.javafaker.Faker
-import com.sun.source.tree.AssertTree
 import helpers.FactoryHelpers
 import io.javalin.Javalin
 import junit.framework.TestCase
@@ -61,7 +60,7 @@ class TestAPI: TestCase(){
 
         val payload = factory.validPayload()
         val headers = mapOf(Consts.GITHUB_EVENT to eventType, Consts.CONTENT_HEADER_KEY to "application/json",
-                            Consts.GITHUB_SECRET to sha1(secret))
+                            Consts.GITHUB_SIGNTURE to sha1(secret))
         val queueChannel = factory.getQueueChecker(eventType)
         val response = httpPost(url = url, headers = headers, data = payload)
 
@@ -91,7 +90,7 @@ class TestAPI: TestCase(){
 
         // Testing wrong secrets configurations
         headers = mapOf(Consts.GITHUB_EVENT to eventType, Consts.CONTENT_HEADER_KEY to "application/json",
-            Consts.GITHUB_SECRET to sha1(secretFromGithub))
+            Consts.GITHUB_SIGNTURE to sha1(secretFromGithub))
         val queueChannel = factory.getQueueChecker(eventType)
         response = httpPost(url = url, headers = headers, data = payload)
 
