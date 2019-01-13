@@ -6,4 +6,5 @@ package webhook.entrypoint.utils
 object Consts{
     const val GITHUB_SIGNTURE = "X-Hub-Signature"
     const val GITHUB_EVENT = "X-GitHub-Event"
+    const val PING = "ping"
 }

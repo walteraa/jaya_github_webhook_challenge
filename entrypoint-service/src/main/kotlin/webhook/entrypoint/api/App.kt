@@ -3,6 +3,7 @@ package webhook.entrypoint.api
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.Javalin
 import mu.KotlinLogging
+import webhook.entrypoint.communication.Producer
 import webhook.entrypoint.utils.Consts
 import webhook.entrypoint.utils.Environment
 import webhook.entrypoint.utils.http.HttpStatusCode
@@ -34,18 +35,24 @@ fun main(args: Array<String>) {
             // Security feature provided by github hooks
             if(Environment.getGithubSecret() != null){
                 val githubSignature = ctx.header(Consts.GITHUB_SIGNTURE)
+                logger.info("Checking credentials...")
                 if (!sha1(Environment.getGithubSecret()).equals(githubSignature)){
                     ctx.status(HttpStatusCode.UNAUTHORIZED)
                 }
+                logger.info("Credentials approved!")
             }
 
             val githubEventName = ctx.header(Consts.GITHUB_EVENT)
 
-            if(githubEventName != null && githubEventName == "issues"){
+            if(githubEventName != null && githubEventName in Environment.getBrokerQueueWhiteList()){
+                if(githubEventName.equals(Consts.PING)){
+                    ctx.status(HttpStatusCode.OK)
+                    return@post
+                }
+
                 val payload = ctx.body()
                 try {
-                    // TODO: Implement the the event processing
-                    logger.info("Data received: " + payload)
+                    Producer.publish(githubEventName, payload)
                     ctx.status(HttpStatusCode.ACCEPTED)
                 }catch(e: Exception){
                     ctx.status(HttpStatusCode.INTERNAL_SERVER_ERROR)

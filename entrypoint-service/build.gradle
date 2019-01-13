@@ -60,6 +60,9 @@ dependencies {
     // Configuration manager
     compile "com.natpryce:konfig:1.6.10.0"
 
+    // Broker
+    compile "com.rabbitmq:amqp-client:latest.release"
+
 
 }
 
