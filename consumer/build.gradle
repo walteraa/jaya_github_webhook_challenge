@@ -76,6 +76,12 @@ dependencies {
     // Date and Time
     compile "com.github.debop:koda-time:1.2.1"
 
+    // Database
+    compile 'org.jetbrains.exposed:exposed:0.10.5'
+    compile "org.flywaydb:flyway-core:$flyway_version"
+    runtime 'org.postgresql:postgresql:42.2.5'
+    compile 'com.zaxxer:HikariCP:3.2.0'
+
 
 
 }
