@@ -1,0 +1,22 @@
+{
+  "action": "$action",
+  "issue": {
+    "url": "$url",
+    "$number_key": $issue_number,
+    "user": {
+      "login": "$issue_user_login"
+    }
+  },
+  "repository" : {
+    "id": $repo_id,
+    "full_name": "$repo_name",
+    "owner": {
+      "login": "$owner_login",
+      "id": $owner_id
+    }
+  },
+  "sender": {
+    "login": "$sender_login",
+    "id": $sender_id
+  }
+}

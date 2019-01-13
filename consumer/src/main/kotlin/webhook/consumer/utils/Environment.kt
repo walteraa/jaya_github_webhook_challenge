@@ -23,7 +23,7 @@ object Environment {
      */
     private val config = systemProperties() overriding
             EnvironmentVariables() overriding
-            ConfigurationProperties.fromResource("application.conf")
+            ConfigurationProperties.fromResource("applicationTest.conf")
 
 
     fun getBrokerHost(): String = config[BROKER_HOST]
