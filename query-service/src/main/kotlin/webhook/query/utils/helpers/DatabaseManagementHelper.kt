@@ -26,3 +26,16 @@ fun initDB() {
     Database.connect(ds)
     logger.info("Database initialized!")
 }
+
+/**
+ * Used to migrate database: It should be run only in a test environment!!
+ */
+fun migrateDB() {
+    val flyway = Flyway()
+    val config = Environment.getDBUrl()
+    val schema = Environment.getSchema()
+    flyway.setDataSource(config, Environment.getDBUser(), Environment.getDBUserPassword())
+    flyway.setSchemas(schema)
+    flyway.setLocations("migrations")
+    flyway.migrate()
+}
