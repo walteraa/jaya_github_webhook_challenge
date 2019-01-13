@@ -5,12 +5,15 @@ import mu.KotlinLogging
 import webhook.consumer.utils.Environment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import webhook.consumer.repository.EventRepository
+import webhook.consumer.utils.helpers.extractPayloadData
 
 
 class Consumer {
 
         private val factory = ConnectionFactory()
         private val logger = KotlinLogging.logger(Consumer::class.java.name)
+        private val eventRepository = EventRepository()
 
         fun startConsuming(queueName: String): Channel {
 
@@ -36,7 +39,8 @@ class Consumer {
 
                     GlobalScope.launch {
                         try {
-                            // TODO: Save it in the database
+                            val toSave = extractPayloadData(message)
+                            eventRepository.create(toSave)
                         }catch(e: Exception){
                             logger.info("Invalid Payload")
                             logger.error(e.message)
