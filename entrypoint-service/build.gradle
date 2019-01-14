@@ -76,7 +76,7 @@ dependencies {
 
     // fake data generator
     compile "com.github.javafaker:javafaker:$faker_version"
-
+    compile "commons-codec:commons-codec:1.4"
 
 }
 
@@ -88,4 +88,4 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 archivesBaseName = 'webhook-entrypoint'
-mainClassName = 'webhook.entrypoint.api.AppKt'
+mainClassName = 'webhook.entrypoint.api.Main'

@@ -7,7 +7,7 @@ import webhook.entrypoint.communication.Producer
 import webhook.entrypoint.utils.Consts
 import webhook.entrypoint.utils.Environment
 import webhook.entrypoint.utils.http.HttpStatusCode
-import webhook.entrypoint.utils.security.sha1
+import webhook.entrypoint.utils.security.calculateSignature
 
 class EntrypointController(){
     private val logger  = KotlinLogging.logger(EntrypointController::class.java.name)
@@ -32,14 +32,17 @@ class EntrypointController(){
              * Endpoint which will receives events from Github
              */
             ApiBuilder.post("/") { ctx ->
-
-                logger.info("Environment.getGithubSecret() -> ${Environment.getGithubSecret()}")
+                val payload = ctx.body()
+                logger.info("Incoming event")
                 // Security feature provided by github hooks
                 if (!Environment.getGithubSecret().isNullOrBlank()) {
                     val githubSignature = ctx.header(Consts.GITHUB_SIGNTURE)
                     logger.info("githubSignature --> $githubSignature")
                     logger.info("Checking credentials...")
-                    if (!sha1(Environment.getGithubSecret()).equals(githubSignature)) {
+
+                    val configuredSHA = calculateSignature(payload, Environment.getGithubSecret() ?: "")
+                    logger.info("localSignature --> sha1=$configuredSHA")
+                    if (!"sha1=$configuredSHA".equals(githubSignature)) {
                         ctx.status(HttpStatusCode.UNAUTHORIZED)
                         return@post
                     }
@@ -54,7 +57,7 @@ class EntrypointController(){
                         return@post
                     }
 
-                    val payload = ctx.body()
+
                     try {
                         Producer.publish(githubEventName, payload)
                         ctx.status(HttpStatusCode.ACCEPTED)
@@ -65,6 +68,10 @@ class EntrypointController(){
                     ctx.status(HttpStatusCode.BAD_REQUET)
                 }
 
+            }
+
+            ApiBuilder.get("/healthy"){ctx ->
+                ctx.status(HttpStatusCode.OK)
             }
 
         }

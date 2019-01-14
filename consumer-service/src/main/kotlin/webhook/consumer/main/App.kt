@@ -8,7 +8,7 @@ import webhook.consumer.utils.helpers.migrateDB
 
 class Main {
 
-    object companion {
+    companion object {
         private val logger = KotlinLogging.logger(Main::class.java.name)
         @JvmStatic
         fun main(args: Array<String>) {

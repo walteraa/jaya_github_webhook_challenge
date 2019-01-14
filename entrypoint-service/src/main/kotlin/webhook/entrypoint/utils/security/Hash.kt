@@ -1,16 +1,34 @@
 package webhook.entrypoint.utils.security
 
 import java.security.MessageDigest
+import java.util.*
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+val HMAC_SHA1_ALGORITHM = "HmacSHA1"
+
+
+
+fun toHexString(data: ByteArray): String{
+    val formatter = Formatter();
+
+    for (b in data) {
+        formatter.format("%02x", b);
+    }
+
+    return formatter.toString()
+}
 
 /**
- * Function to calculate a String's SHA-1
- * @input: String which will be processed
+ * Function to calculate the data signature based on secret
+ * @data: Data to calculate the signature
+ * @key: key used in sign
  */
-fun sha1(input: String?): String{
-    var result = ""
-    val bytes = input?.toByteArray()
-    val md = MessageDigest.getInstance("SHA-1")
-    val digest = md.digest(bytes)
-    for (byte in digest) result += "%02x".format(byte)
-    return result
+fun calculateSignature(data: String, key: String): String{
+    val signingKey = SecretKeySpec(key.toByteArray(), HMAC_SHA1_ALGORITHM)
+
+    val mac = Mac.getInstance(HMAC_SHA1_ALGORITHM)
+    mac.init(signingKey)
+
+    return toHexString(mac.doFinal(data.toByteArray()))
 }

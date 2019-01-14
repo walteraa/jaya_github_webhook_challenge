@@ -1,16 +1,20 @@
 package tests
 
+import com.sun.crypto.provider.HmacSHA1
 import junit.framework.TestCase
-import webhook.entrypoint.utils.security.sha1
+import webhook.entrypoint.utils.security.calculateSignature
 
 class ConsumerTest: TestCase() {
 
 
     fun testHashFunction(){
-        var passphrase = "this test was awesome"
+        val secret = "testgithubsecret"
+        val data = "{\"test\":\"secutiry\"}"
 
-        assertEquals("Invalid hash was built","7ee0f5e4d865ee2c03bb2783eada64317e6ffe39",
-            sha1(passphrase))
+        assertEquals("Invalid hash was built","02fe02fd51397cc9b58f1cd8f51b05a552b363da",
+            calculateSignature(data, secret)
+        )
+
     }
 
 }

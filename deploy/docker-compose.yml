@@ -1,0 +1,116 @@
+---
+version: '2.1'
+services:
+  db:
+    image: 'postgres:9.5.4'
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: &db_pass ${DB_PASSWORD}
+      POSTGRES_USER: &db_user ${DB_USER}
+      POSTGRES_DB: &db_name ${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    hostname: db
+    ports:
+      - "5432:5432"
+    networks:
+      integration_network:
+        aliases:
+          - &db_host db
+    healthcheck:
+      timeout: 5s
+      interval: 5s
+      retries: 5
+      test:
+        - "CMD-SHELL"
+        - "pg_isready --dbname=${DB_NAME} --host=localhost --username=${DB_USER}" 
+  broker:
+    image: 'rabbitmq:3.5.7-management'
+    restart: always
+    volumes:
+      - broker_data:/var/lib/rabbitmq
+    ports:
+      - '15673:15672'
+      - '5672:5672'
+    networks:
+      integration_network:
+        aliases:
+          - &broker_host broker
+    healthcheck:
+      timeout: 5s
+      interval: 5s
+      retries: 5
+      test:
+        - "CMD"
+        - "rabbitmqctl"
+        - "status"
+  entrypoint_service:
+    image: entrypoint-service:dev
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      BROKER_HOST: *broker_host
+      BROKER_QUEUE_WHITE_LIST: ${BROKER_QUEUE_WHITE_LIST}
+    env_file:
+     - .env
+    networks:
+      integration_network:
+        aliases:
+          - &server_host entrypoint_service
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  consumer_service:
+    image: consumer-service:dev
+    environment:
+      QUEUE_NAME: ${QUEUE_NAME}
+      BROKER_HOST: *broker_host
+      DB_HOST: *db_host
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+      DB_NAME: ${DB_NAME}
+    env_file:
+      - .env
+    networks:
+      integration_network:
+        aliases:
+          - &consumer_service consumer_service
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+  query_service:
+    image: query-service:dev
+    ports:
+      - "${SERVER_QUERY_PORT}:${SERVER_QUERY_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_QUERY_PORT}
+      DB_HOST: *db_host
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+      DB_NAME: ${DB_NAME}
+    env_file:
+      - .env
+    networks:
+      integration_network:
+        aliases:
+          - &query_service query_service
+    depends_on:
+      consumer_service:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+networks:
+  integration_network:
+
+volumes:
+  db_data:
+  broker_data:

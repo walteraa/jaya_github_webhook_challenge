@@ -73,18 +73,20 @@ dependencies {
     // Async
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
-    // Date and Time
-    compile "com.github.debop:koda-time:1.2.1"
-
     // Database
     compile 'org.jetbrains.exposed:exposed:0.10.5'
     compile "org.flywaydb:flyway-core:$flyway_version"
     runtime 'org.postgresql:postgresql:42.2.5'
     compile 'com.zaxxer:HikariCP:3.2.0'
 
+
+    // Date and Time
+    compile "com.github.debop:koda-time:1.2.1"
+
     // Test
     testCompile 'junit:junit:4.12'
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
 
 }
 
@@ -97,4 +99,4 @@ compileTestKotlin {
 }
 
 archivesBaseName = 'webhook-consumer'
-mainClassName = 'webhook.consumer.main.Consumer'
+mainClassName = 'webhook.consumer.main.Main'

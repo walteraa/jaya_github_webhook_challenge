@@ -9,7 +9,7 @@ import webhook.entrypoint.api.controllers.EntrypointController
 import webhook.entrypoint.utils.Consts
 import webhook.entrypoint.utils.Environment
 import webhook.entrypoint.utils.http.HttpStatusCode
-import webhook.entrypoint.utils.security.sha1
+import webhook.entrypoint.utils.security.calculateSignature
 import khttp.post as httpPost
 
 class TestAPI: TestCase(){
@@ -52,15 +52,16 @@ class TestAPI: TestCase(){
     }
 
     fun testGithubSecuritySecretValidRequest(){
-        val secret = Faker().internet().password(6, 10)
+        val secret = Faker().name().username()
         val eventType = "test"
         System.setProperty(Consts.GITHUB_SECRET, secret)
 
         assertEquals(secret, Environment.getGithubSecret())
 
         val payload = factory.validPayload()
+        val signature = "sha1=${calculateSignature(payload, secret)}"
         val headers = mapOf(Consts.GITHUB_EVENT to eventType, Consts.CONTENT_HEADER_KEY to "application/json",
-                            Consts.GITHUB_SIGNTURE to sha1(secret))
+                            Consts.GITHUB_SIGNTURE to signature)
         val queueChannel = factory.getQueueChecker(eventType)
         val response = httpPost(url = url, headers = headers, data = payload)
 
@@ -87,10 +88,10 @@ class TestAPI: TestCase(){
         var response = httpPost(url = url, headers = headers, data = payload)
         assertEquals(HttpStatusCode.UNAUTHORIZED, response.statusCode)
 
-
+        val signature = "sha1=${calculateSignature(payload, secretFromGithub)}"
         // Testing wrong secrets configurations
         headers = mapOf(Consts.GITHUB_EVENT to eventType, Consts.CONTENT_HEADER_KEY to "application/json",
-            Consts.GITHUB_SIGNTURE to sha1(secretFromGithub))
+            Consts.GITHUB_SIGNTURE to signature)
         val queueChannel = factory.getQueueChecker(eventType)
         response = httpPost(url = url, headers = headers, data = payload)
 
